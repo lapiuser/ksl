@@ -34,7 +34,7 @@ class HeartbeatPayload(BaseModel):
 
 
 def now_utc() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.utcnow()
 
 
 def hash_token(token: str) -> str:
@@ -205,10 +205,17 @@ def clicks(payload: ClickPayload, request: Request, response: Response, ksl_visi
             db.add(visitor)
             db.flush()
 
-        visitor.last_seen = now
-        if not visitor.rate_window_start or (now - visitor.rate_window_start).total_seconds() >= 60:
-            visitor.rate_window_start = now
-            visitor.rate_clicks = 0
+visitor.last_seen = now
+
+if visitor.rate_window_start and visitor.rate_window_start.tzinfo is not None:
+    visitor.rate_window_start = visitor.rate_window_start.replace(tzinfo=None)
+
+if (
+    not visitor.rate_window_start
+    or (now - visitor.rate_window_start).total_seconds() >= 60
+):
+    visitor.rate_window_start = now
+    visitor.rate_clicks = 0
 
         remaining = max(0, CLICK_LIMIT_PER_MINUTE - visitor.rate_clicks)
         accepted = min(payload.clicks, remaining)
