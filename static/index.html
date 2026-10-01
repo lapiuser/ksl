@@ -1,1 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f3ed" />
+  <meta name="description" content="Kaliningrad School Leaderboard — интерактивный рейтинг учебных заведений Калининграда." />
+  <link rel="icon" type="image/png" href="/assets/branding/icons/logo.png" />
+  <title>Kaliningrad School Leaderboard</title>
+  <link rel="preload" as="image" href="/assets/branding/icons/logo.png" />
+  <link rel="stylesheet" href="/assets/app.css" />
+</head>
+<body>
+  <div id="app">
+    <section id="selectionView" class="view view-selection">
+      <div class="selection-shell">
+        <header class="brand-block">
+          <img class="brand-logo" src="/assets/branding/icons/logo.png" alt="KSL" />
+          <div>
+            <div class="eyebrow">KALININGRAD</div>
+            <h1>School Leaderboard</h1>
+            <p>Выбери учебное заведение и начни поддерживать его</p>
+          </div>
+        </header>
+        <div id="categoryGrid" class="category-grid" aria-live="polite"></div>
+        <button id="rememberedSchoolBtn" class="secondary-button hidden"></button>
+      </div>
+    </section>
 
+    <section id="schoolView" class="view view-school hidden">
+      <div class="backdrop" id="backdrop"></div>
+      <header class="topbar">
+        <button id="changeSchoolBtn" class="icon-button" aria-label="Сменить учебное заведение">←</button>
+        <div class="topbar-brand">
+          <img src="/assets/branding/icons/logo.png" alt="" />
+          <div>
+            <strong>KSL</strong>
+            <span id="categoryLabel">—</span>
+          </div>
+        </div>
+        <button id="aboutBtn" class="icon-button" aria-label="О проекте">
+          <img src="/assets/branding/icons/statistick.png" alt="" />
+        </button>
+      </header>
+
+      <main class="hero-wrap">
+        <div class="hero-card" id="heroClickArea">
+          <picture class="hero-picture">
+            <source id="heroMobileSource" media="(max-width: 700px)" />
+            <img id="heroImage" alt="" fetchpriority="high" decoding="async" />
+          </picture>
+          <div class="hero-shade"></div>
+          <div class="hero-copy">
+            <span class="hero-kicker">ТВОЁ УЧЕБНОЕ ЗАВЕДЕНИЕ</span>
+            <h2 id="schoolName">—</h2>
+            <div class="counter-pill">
+              <span>Твои клики</span>
+              <strong id="sessionClicks">0</strong>
+            </div>
+          </div>
+          <div id="floatLayer" class="float-layer" aria-hidden="true"></div>
+          <div class="click-hint">Нажимай</div>
+        </div>
+      </main>
+
+      <div id="leaderboardDelta" class="leaderboard-delta" aria-live="polite"></div>
+
+      <section class="bottom-dock">
+        <button id="leaderboardToggle" class="leader-dock" aria-expanded="false">
+          <div class="leader-icon-wrap"><img src="/assets/branding/icons/leaderboard.png" alt="" /></div>
+          <div class="leader-summary">
+            <span>ЛИДЕР</span>
+            <strong id="leaderName">—</strong>
+            <small id="leaderClicks">0 кликов</small>
+          </div>
+          <div class="my-rank">
+            <span>ТВОЁ МЕСТО</span>
+            <strong id="myRank">—</strong>
+          </div>
+          <span class="chevron">⌃</span>
+        </button>
+      </section>
+
+      <aside id="leaderboardSheet" class="sheet" aria-hidden="true">
+        <div class="sheet-backdrop" data-close="leaderboard"></div>
+        <div class="sheet-panel">
+          <div class="sheet-head">
+            <div>
+              <span class="sheet-kicker">ОБЩИЙ РЕЙТИНГ</span>
+              <h3>Кто сейчас впереди</h3>
+            </div>
+            <button class="close-button" data-close="leaderboard" aria-label="Закрыть">×</button>
+          </div>
+          <div id="leaderboardList" class="leaderboard-list"></div>
+        </div>
+      </aside>
+
+      <aside id="aboutSheet" class="sheet" aria-hidden="true">
+        <div class="sheet-backdrop" data-close="about"></div>
+        <div class="sheet-panel about-panel">
+          <div class="sheet-head">
+            <div>
+              <span class="sheet-kicker">KSL</span>
+              <h3 id="aboutTitle">О проекте</h3>
+            </div>
+            <button class="close-button" data-close="about" aria-label="Закрыть">×</button>
+          </div>
+          <p id="aboutText" class="about-text">Загрузка…</p>
+          <div class="stats-grid">
+            <div class="stat-card"><img src="/assets/branding/icons/usericon.png" alt="" /><span>Посетители</span><strong id="statUsers">0</strong></div>
+            <div class="stat-card"><span class="live-dot"></span><span>Сейчас на сайте</span><strong id="statActive">0</strong></div>
+            <div class="stat-card"><img src="/assets/branding/icons/statistick.png" alt="" /><span>Всего кликов</span><strong id="statClicks">0</strong></div>
+          </div>
+          <p class="data-note">Обновление статистики — автоматически</p>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>
