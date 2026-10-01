@@ -6,6 +6,14 @@ DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{(DATA_DIR / 'leaderboard.db').as_posix()}")
+
+# Render provides a standard PostgreSQL URL. SQLAlchemy defaults to the
+# psycopg2 driver for postgresql://, while this project installs psycopg 3.
+# Normalize the URL so both local SQLite and Render PostgreSQL work.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len("postgres://"): ]
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len("postgresql://"): ]
 APP_HOST = os.getenv("HOST", "127.0.0.1")
 APP_PORT = int(os.getenv("PORT", "8000"))
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
