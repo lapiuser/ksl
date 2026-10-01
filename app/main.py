@@ -207,15 +207,17 @@ def clicks(payload: ClickPayload, request: Request, response: Response, ksl_visi
 
 visitor.last_seen = now
 
-if visitor.rate_window_start and visitor.rate_window_start.tzinfo is not None:
-    visitor.rate_window_start = visitor.rate_window_start.replace(tzinfo=None)
+        visitor.last_seen = now
 
-if (
-    not visitor.rate_window_start
-    or (now - visitor.rate_window_start).total_seconds() >= 60
-):
-    visitor.rate_window_start = now
-    visitor.rate_clicks = 0
+        if visitor.rate_window_start and visitor.rate_window_start.tzinfo is not None:
+            visitor.rate_window_start = visitor.rate_window_start.replace(tzinfo=None)
+
+        if (
+            not visitor.rate_window_start
+            or (now - visitor.rate_window_start).total_seconds() >= 60
+        ):
+            visitor.rate_window_start = now
+            visitor.rate_clicks = 0
 
         remaining = max(0, CLICK_LIMIT_PER_MINUTE - visitor.rate_clicks)
         accepted = min(payload.clicks, remaining)
@@ -227,6 +229,7 @@ if (
                 synchronize_session=False,
             )
             visitor.rate_clicks += accepted
+
         db.commit()
 
     return {
