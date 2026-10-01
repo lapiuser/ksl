@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: kaliningrad-school-leaderboard
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kaliningrad-school-leaderboard-db
+          property: connectionString
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DEMO_ACTIVITY_ENABLED
+        value: "false"
+      - key: CLICK_LIMIT_PER_MINUTE
+        value: "800"
+
+databases:
+  - name: kaliningrad-school-leaderboard-db
+    databaseName: ksl
+    postgresMajorVersion: "17"
+    plan: free
+    region: frankfurt
