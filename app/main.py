@@ -188,24 +188,38 @@ def heartbeat(payload: HeartbeatPayload, response: Response, ksl_visitor: str | 
     return {"ok": True}
 
 @app.post("/api/clicks")
-def clicks(payload: ClickPayload, request: Request, response: Response, ksl_visitor: str | None = Cookie(default=None)):
+def clicks(
+    payload: ClickPayload,
+    request: Request,
+    response: Response,
+    ksl_visitor: str | None = Cookie(default=None)
+):
     if payload.school_id not in SCHOOL_BY_ID:
-        raise HTTPException(status_code=404, detail="Учебное заведение не найдено")
+        raise HTTPException(
+            status_code=404,
+            detail="Учебное заведение не найдено"
+        )
 
     token, new_token = ensure_visitor(token=ksl_visitor)
+
     if new_token:
         apply_cookie(response, token)
 
     now = now_utc()
     token_hash = hash_token(token)
+
     with SessionLocal() as db:
         visitor = db.get(Visitor, token_hash)
+
         if visitor is None:
-            visitor = Visitor(token_hash=token_hash, created_at=now, last_seen=now, rate_clicks=0)
+            visitor = Visitor(
+                token_hash=token_hash,
+                created_at=now,
+                last_seen=now,
+                rate_clicks=0
+            )
             db.add(visitor)
             db.flush()
-
-visitor.last_seen = now
 
         visitor.last_seen = now
 
@@ -219,20 +233,45 @@ visitor.last_seen = now
             visitor.rate_window_start = now
             visitor.rate_clicks = 0
 
-        remaining = max(0, CLICK_LIMIT_PER_MINUTE - visitor.rate_clicks)
-        accepted = min(payload.clicks, remaining)
+        remaining = max(
+            0,
+            CLICK_LIMIT_PER_MINUTE - visitor.rate_clicks
+        )
+
+        accepted = min(
+            payload.clicks,
+            remaining
+        )
+
         rejected = payload.clicks - accepted
 
         if accepted:
-            db.query(School).filter(School.id == payload.school_id).update(
-                {School.real_clicks: School.real_clicks + accepted},
+            db.query(School).filter(
+                School.id == payload.school_id
+            ).update(
+                {
+                    School.real_clicks:
+                    School.real_clicks + accepted
+                },
                 synchronize_session=False,
             )
+
             visitor.rate_clicks += accepted
 
         db.commit()
 
+        current_remaining = max(
+            0,
+            CLICK_LIMIT_PER_MINUTE - visitor.rate_clicks
+        )
+
     return {
+        "ok": True,
+        "accepted": accepted,
+        "rejected": rejected,
+        "limit_per_minute": CLICK_LIMIT_PER_MINUTE,
+        "remaining": current_remaining,
+    }
         "ok": True,
         "accepted": accepted,
         "rejected": rejected,
